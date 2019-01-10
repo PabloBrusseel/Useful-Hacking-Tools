@@ -1,17 +1,30 @@
-﻿# Configuration
+﻿<#
+.Synopsis
+This script generates self-signed certificates.
+.Example
+Create-Certificate -DNS example.com -YearsValid 3 - ExportPath "C:\Certificates\" -CertName MyCert -Password Password123
+#>
 
-$dns = 'example.com'
-$yearsvalid = 10
-$exportpath = 'C:\'
-$certname = 'cert' + '.pfx'
-$certpassword =  'password123'
-
+# Configuration
+[CmdletBinding()]
+param(
+    [Parameter(Mandatory=$True)]
+    [string]$DNS,
+    [Parameter(Mandatory=$True)]
+    [int]$YearsValid,
+    [Parameter(Mandatory=$True)]
+    [string]$ExportPath,
+    [Parameter(Mandatory=$True)]
+    [string]$CertName,
+    [Parameter(Mandatory=$True)]
+    [string]$Password
+)
 # End of Configuration
-
+ 
 $date_now = Get-Date
-$extended_date = $date_now.AddYears($yearsvalid)
-$cert = New-SelfSignedCertificate -certstorelocation cert:\localmachine\my -dnsname $dns -notafter $extended_date
-$pwd = ConvertTo-SecureString -String $certpassword -Force -AsPlainText
+$extended_date = $date_now.AddYears($YearsValid)
+$cert = New-SelfSignedCertificate -certstorelocation cert:\localmachine\my -dnsname $DNS -notafter $extended_date
+$pwd = ConvertTo-SecureString -String $Password -Force -AsPlainText
 $path = ‘cert:\localMachine\my\’ + $cert.thumbprint
-$fullexportpath = $exportpath + $certname
+$fullexportpath = $ExportPath + $CertName + '.pfx'
 Export-PfxCertificate -cert $path -FilePath $fullexportpath -Password $pwd
